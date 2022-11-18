@@ -26,10 +26,19 @@ class Ingredient(models.Model):
         max_length=200,
         verbose_name='Название ингредиента',
     )
-    amount = models.PositiveSmallIntegerField()
     measurement_unit = models.CharField(
         max_length=50,
+        verbose_name='Еденица измерения ингредиента',
     )
+
+
+class RecipeIngredient(models.Model):
+    ingredient = models.ForeignKey(
+        'Ingredient',
+        related_name='ingredients',
+        on_delete=models.CASCADE,
+    )
+    amount = models.PositiveSmallIntegerField()
 
 
 class Recipe(models.Model):
@@ -48,10 +57,10 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField()
     description = models.TextField()
     ingredient = models.ManyToManyField(
-        'Ingredient',
-        related_name='ingredients'
+        RecipeIngredient,
+        related_name='recipeingredients'
     )
     tag = models.ManyToManyField(
-        'Tag',
+        Tag,
         related_name='tags'
     )
