@@ -56,11 +56,44 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField()
     description = models.TextField()
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         RecipeIngredient,
-        related_name='recipeingredients'
+        related_name='recipe_ingredients',
     )
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
-        related_name='tags'
+        related_name='tags',
+    )
+
+
+class ShoppingList(models.Model):
+    author = models.ForeignKey(
+        User,
+        related_name='shopping_list',
+    )
+    recipes = models.ManyToManyField(
+        Recipe,
+        related_name='recipes',
+    )
+
+
+class Subscription(models.Model):
+    author = models.ForeignKey(
+        User,
+        related_name='author',
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='user',
+    )
+
+
+class Favorite(models.Model):
+    author = models.ForeignKey(
+        User,
+        related_name='author',
+    )
+    recipes = models.ManyToManyField(
+        Recipe,
+        related_name='recipes',
     )
