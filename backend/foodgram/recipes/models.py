@@ -1,8 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 
-
-User = get_user_model()
+from users.models import User
 
 
 class Tag(models.Model):
@@ -20,6 +18,9 @@ class Tag(models.Model):
         unique=True,
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Ingredient(models.Model):
     name = models.CharField(
@@ -31,14 +32,20 @@ class Ingredient(models.Model):
         verbose_name='Еденица измерения ингредиента',
     )
 
+    def __str__(self):
+        return self.name
+
 
 class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         'Ingredient',
-        related_name='ingredients',
+        related_name='recipe_ingredients',
         on_delete=models.CASCADE,
     )
     amount = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return self.ingredient.name
 
 
 class Recipe(models.Model):
@@ -56,44 +63,60 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField()
     description = models.TextField()
-    ingredients = models.ManyToManyField(
+    ingredient = models.ManyToManyField(
         RecipeIngredient,
-        related_name='recipe_ingredients',
+        related_name='recipes',
     )
-    tags = models.ManyToManyField(
+    tag = models.ManyToManyField(
         Tag,
-        related_name='tags',
+        related_name='recipes',
     )
+
+    def __str__(self):
+        return self.name
 
 
 class ShoppingList(models.Model):
     author = models.ForeignKey(
         User,
-        related_name='shopping_list',
+        related_name='shopping_lists',
+        on_delete=models.CASCADE,
     )
-    recipes = models.ManyToManyField(
-        Recipe,
-        related_name='recipes',
+    recipe = models.ManyToManyField(
+        'Recipe',
+        related_name='shopping_lists',
     )
+
+    def __str__(self):
+        return self.author.username
 
 
 class Subscription(models.Model):
     author = models.ForeignKey(
         User,
-        related_name='author',
+        related_name='subscribed',
+        on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
         User,
-        related_name='user',
+        related_name='subscribing',
+        on_delete=models.CASCADE,
     )
+
+    def __str__(self):
+        return self.author.username
 
 
 class Favorite(models.Model):
     author = models.ForeignKey(
         User,
-        related_name='author',
+        related_name='favorites',
+        on_delete=models.CASCADE,
     )
-    recipes = models.ManyToManyField(
-        Recipe,
-        related_name='recipes',
+    recipe = models.ManyToManyField(
+        'Recipe',
+        related_name='favorites',
     )
+
+    def __str__(self):
+        return self.author.username
