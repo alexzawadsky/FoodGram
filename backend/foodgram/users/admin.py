@@ -6,12 +6,12 @@ from .models import User
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
-        'pk', 'username', 'email',
-        'role', 'first_name', 'last_name',
+        'pk', 'is_staff', 'username', 'email',
+        'first_name', 'last_name',
     )
-    list_editable = ('role',)
+    list_filter = ('username', 'email',)
     search_fields = (
-        'username', 'email', 'role',
+        'pk', 'username', 'email',
         'first_name', 'last_name',
     )
     empty_value_display = '-пусто-'
