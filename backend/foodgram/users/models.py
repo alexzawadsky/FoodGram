@@ -3,7 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """Модель пользователя с выбором его роли."""
+    """Модель пользователей."""
+
     first_name = models.CharField(
         verbose_name='name',
         max_length=150,
@@ -22,4 +23,6 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ('first_name', 'last_name', 'email',)
 
     class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ['id']
