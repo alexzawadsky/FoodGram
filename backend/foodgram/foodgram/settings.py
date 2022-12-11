@@ -1,9 +1,14 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv('../../infra/.env')
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-=p7iz@2jlnmtdnxnhb@h9!tkku)v$be!h!wks!jw_)^ppv83*w'
+SECRET_KEY = os.getenv('SECRET_KEY')
+
 
 DEBUG = True
 
@@ -127,8 +132,8 @@ DJOSER = {
         'user_delete': ['rest_framework.permissions.AllowAny'],
     },
     'SERIALIZERS': {
-        'user': 'api.serializers.CastomUserSerializer',
-        'current_user': 'api.serializers.CastomUserSerializer',
-        'user_create': 'api.serializers.CastomUserCreateSerializer',
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
+        'user_create': 'api.serializers.CustomUserCreateSerializer',
     },
 }
