@@ -24,6 +24,8 @@ class CustomUserSerializer(djserializers.UserSerializer):
         if user.is_authenticated:
             return Subscription.objects.filter(user=user, author=obj).exists()
 
+        return False
+
 
 class SubscriptionOrFavoriteRecipeSerializer(serializers.ModelSerializer):
     """Дополнительный сериализатор для рецепта."""
@@ -308,6 +310,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         if user.is_authenticated:
             return model_class.objects.filter(author=user, recipe=obj).exists()
+
+        return False
 
     def get_is_favorited(self, obj):
         return self.exists_validate(obj=obj, model_class=Favorite)

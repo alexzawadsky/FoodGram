@@ -16,10 +16,10 @@ class ShoppingListFavoriteMixin(APIView):
             context={'request': request}
         )
 
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk):
         obj = self.queryset.filter(author=request.user, recipe__id=pk)

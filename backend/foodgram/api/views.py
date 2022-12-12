@@ -90,19 +90,19 @@ class SubscriptionViewSet(APIView):
                 context={'request': request}
             )
 
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        if Subscription.objects.filter(
-                user=request.user, author__id=pk).exists():
-            Subscription.objects.filter(
-                user=request.user, author__id=pk
-            ).delete()
+        subscription = Subscription.objects.filter(
+            user=request.user, author__id=pk)
+
+        if subscription.exists():
+            subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -139,8 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return RecipeSerializer
-        else:
-            return RecipeCreateUpdateSerializer
+        return RecipeCreateUpdateSerializer
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
