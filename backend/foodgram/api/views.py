@@ -1,13 +1,14 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from djoser import views as djviews
-from rest_framework import filters, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from recipes.models import (Favorite, Ingredient, Recipe, ShoppingList,
                             Subscription, Tag)
+from .filters import IngredientNameFilter
 from .mixins import ShoppingListFavoriteMixin
 from .permissions import IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
@@ -60,23 +61,16 @@ def get_shopping_list(request):
     return response
 
 
-class SubscriptionViewSet(APIView):
+class SubscriptionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwner,)
     serializer_class = SubscriptionSerializer
 
-    def get(self, request):
-        subscriptions = Subscription.objects.filter(
-            user=request.user)
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
 
-        if subscriptions.exists():
-            serializer_for_queryset = SubscriptionSerializer(
-                instance=subscriptions,
-                many=True,
-                context={'request': request}
-            )
-            return Response(serializer_for_queryset.data)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+class SubscriptionCreateViewSet(APIView):
+    permission_classes = (IsOwner,)
 
     def post(self, request, pk):
         if not Subscription.objects.filter(
@@ -126,13 +120,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if author_id is not None and author_id.isdigit():
             queryset = queryset.filter(author__id=author_id)
         if tags_slug is not None:
-            queryset = queryset.filter(tag__slug=tags_slug)
+            queryset = queryset.filter(tags__slug=tags_slug)
         if is_favorited == '1' and user.is_authenticated:
-            if Favorite.objects.filter(author=user).exists():
-                queryset = Favorite.objects.get(author=user).recipe.all()
+            queryset = queryset.filter(favorites__author=user)
         if is_in_shopping_cart == '1' and user.is_authenticated:
-            if ShoppingList.objects.filter(author=user).exists():
-                queryset = ShoppingList.objects.get(author=user).recipe.all()
+            queryset = queryset.filter(shopping_lists__author=user)
 
         return queryset
 
@@ -154,8 +146,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    filter_backends = (IngredientNameFilter,)
 
 
 class CustomUserViewSet(djviews.UserViewSet):

@@ -4,8 +4,9 @@ from djoser.views import UserViewSet
 from rest_framework.routers import DefaultRouter
 
 from .views import (CustomUserViewSet, FavoriteViewSet, IngredientViewSet,
-                    RecipeViewSet, ShoppingListViewSet, SubscriptionViewSet,
-                    TagViewSet, get_shopping_list)
+                    RecipeViewSet, ShoppingListViewSet,
+                    SubscriptionCreateViewSet, SubscriptionViewSet, TagViewSet,
+                    get_shopping_list)
 
 app_name = 'api'
 
@@ -14,6 +15,8 @@ router = DefaultRouter()
 router.register('tags', TagViewSet)
 router.register('recipes', RecipeViewSet, basename='recipe')
 router.register('ingredients', IngredientViewSet)
+router.register(
+    'users/subscriptions', SubscriptionViewSet, basename='subscription')
 
 
 urlpatterns = [
@@ -24,10 +27,7 @@ urlpatterns = [
         'recipes/download_shopping_cart/', get_shopping_list,
         name='download_shopping_cart'),
     path(
-        'users/subscriptions/', SubscriptionViewSet.as_view(),
-        name='subscriptions'),
-    path(
-        'users/<int:pk>/subscribe/', SubscriptionViewSet.as_view(),
+        'users/<int:pk>/subscribe/', SubscriptionCreateViewSet.as_view(),
         name='subscribe'),
     path(
         'recipes/<int:pk>/favorite/', FavoriteViewSet.as_view(),
