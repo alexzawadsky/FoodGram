@@ -6,3 +6,4 @@ drf-extra-fields==3.4.1
 python-dotenv==0.21.0
 gunicorn
 psycopg2-binary
+django-filter==22.1

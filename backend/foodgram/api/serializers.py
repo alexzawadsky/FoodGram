@@ -202,7 +202,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания рецепта."""
+    """Сериализатор для создания или редактирования рецепта."""
 
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
@@ -232,6 +232,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             ).exists():
                 raise serializers.ValidationError(
                     'Нет такого ингредиента.')
+            if int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    'Нельзя добавлять ингредиенты с кол-вом меньше 1.'
+                )
             if ingredient_id in ingredients:
                 raise serializers.ValidationError(
                     'Нельзя добавлять несколько одинаковых ингредиентов.')
