@@ -189,7 +189,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для связи рецепта и ингредиентов."""
 
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(source='ingredient.id')
     amount = serializers.IntegerField(required=True)
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -225,7 +225,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = []
 
         for ingredient in value:
-            ingredient_id = ingredient['id']
+            ingredient_id = ingredient['ingredient']['id']
 
             if not Ingredient.objects.filter(
                 id=ingredient_id,
@@ -252,7 +252,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def creating_ingredients(self, recipe, ingredients):
         ingredients_for_create = [RecipeIngredient(
             recipe=recipe,
-            ingredient=get_object_or_404(Ingredient, id=ingredient['id']),
+            ingredient=get_object_or_404(
+                Ingredient,
+                id=ingredient['ingredient']['id']
+            ),
             amount=ingredient['amount']
         ) for ingredient in ingredients]
         RecipeIngredient.objects.bulk_create(ingredients_for_create)

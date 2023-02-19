@@ -1,15 +1,15 @@
 from django.db.models import Sum
 from django.http import HttpResponse
+from django_filters import rest_framework as django_filters
 from djoser import views as djviews
-from rest_framework import status, viewsets, filters
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
 
 from recipes.models import (Favorite, Ingredient, Recipe, ShoppingList,
                             Subscription, Tag)
-from .filters import RecipeFilter
+from .filters import IngredientNameFilter, RecipeFilter
 from .mixins import ShoppingListFavoriteMixin
 from .permissions import IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
@@ -107,36 +107,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_class = RecipeFilter
+    filter_backends = [django_filters.DjangoFilterBackend]
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return RecipeSerializer
         return RecipeCreateUpdateSerializer
-
-    # def get_queryset(self):
-    #     queryset = Recipe.objects.all()
-    #     user = self.request.user
-
-    #     author_id = self.request.query_params.get('author')
-    #     tags_slug = self.request.query_params.get('tags')
-    #     print(f'{self.request.query_params}; {tags_slug}')
-    #     is_favorited = self.request.query_params.get('is_favorited')
-    #     is_in_shopping_cart = self.request.query_params.get(
-    #         'is_in_shopping_cart'
-    #     )
-
-    #     if author_id is not None and author_id.isdigit():
-    #         queryset = queryset.filter(author__id=author_id)
-    #     if tags_slug is not None:
-    #         queryset = queryset.filter(tags__slug=tags_slug)
-    #     if is_favorited == '1' and user.is_authenticated:
-    #         queryset = queryset.filter(favorites__author=user)
-    #     if is_in_shopping_cart == '1' and user.is_authenticated:
-    #         queryset = queryset.filter(shopping_lists__author=user)
-
-    #     return queryset
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -151,7 +128,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    # filter_backends = (IngredientNameFilter,)
+    filter_backends = (IngredientNameFilter,)
 
 
 class CustomUserViewSet(djviews.UserViewSet):

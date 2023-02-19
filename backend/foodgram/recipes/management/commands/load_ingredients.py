@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 else:
                     name_with = splited_ingredient[0][1:]
                     name = (
-                        name_with[1:name_with.index('"')] +
+                        name_with[0:name_with.index('"')] +
                         name_with[name_with.index('"') + 1:len(name_with) - 2]
                     )
                     measurement_unit = splited_ingredient[1]
